@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Bearbeite den Post</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="title">Titel:</label>
+    <input type="text" name="title" id="title" value="{{ post.title }}" required>
+
+    <label for="description">Beschreibung:</label>
+    <textarea name="description" id="description" required>{{ post.description }}</textarea>
+    <br>
+    {% for photo in photos %}
+      {% if photo.images %}
+        <div class="image-container">
+          <img src="{{ photo.images.url }}" alt="Bild" style="width: 600px;">
+          <button type="button" class="delete-btn" data-photo-id="{{ photo.id }}">Delete</button>
+          <button type="button" class="change-btn" data-photo-id="{{ photo.id }}">Change</button>
+          <input type="file" name="changed_photo_{{ photo.id }}" hidden>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <input type="hidden" name="length" value="{{ photos|length }}">
+
+    <button type="submit">Save changes</button>
+    <button type="submit" name="action" value="hide">In den Papierkorb</button>
+  </form>
+
+  <script>
+    // JavaScript-Code zum Löschen von Bildern
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const changeButtons = document.querySelectorAll('.change-btn');
+
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const photoId = button.dataset.photoId;
+        const container = button.parentNode;
+
+        // Remove the image container from the DOM
+        container.remove();
+
+        // Create a hidden input to mark the photo for deletion
+        const hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'delete_photo_ids');
+        hiddenInput.setAttribute('value', photoId);
+
+        // Append the hidden input to the form
+        const form = document.querySelector('form');
+        form.appendChild(hiddenInput);
+      });
+    });
+
+    changeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const photoId = button.dataset.photoId;
+        const hiddenFileInput = document.querySelector(`input[name="changed_photo_${photoId}"]`);
+        hiddenFileInput.click();
+
+        hiddenFileInput.addEventListener('change', () => {
+          const file = hiddenFileInput.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const imageContainer = button.parentNode;
+              const imgElement = imageContainer.querySelector('img');
+              imgElement.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      });
+    });
+
+  </script>
+{% endblock %}

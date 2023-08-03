@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+</head>
+<body>
+    <a href="/create-post"><h2>Create a new Post</h2></a>
+    <a href="/login"><h2>Create a new Post</h2></a>
+
+    <div class="row row-cols-1 row-cols-md-2">
+        {% for post in posts %}
+        {% if not post.hidden %}  
+        <div class="col mb-4">
+            <div class="card">
+                <div class="view overlay">
+                    {% if post.postimage_set.first %}
+                    {% with post_image=post.postimage_set.first %}
+                    {% if post_image.images %}
+                    <img class="card-img-top cropped-image" src="{{ post_image.images.url }}" alt="" width="250" height="250">
+                    {% else %}
+                    <img class="card-img-top" src="path/to/default/image.jpg" alt="" width="250" height="250">
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    <img class="card-img-top" src="path/to/default/image.jpg" alt="" width="250" height="250">
+                    {% endif %}
+                    <a href="#!">
+                        <div class="mask rgba-white-slight"></div>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ post.title }}</h4>
+                    <a href="{% url 'edit_post' post_id=post.id %}">Edit</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="model-container">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.min.js"></script>
+</body>
+</html>
+{% endblock %} 
